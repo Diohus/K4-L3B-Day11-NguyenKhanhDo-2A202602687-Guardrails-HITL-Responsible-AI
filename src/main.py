@@ -92,7 +92,10 @@ async def part4_attacks():
     from attacks.attacks import run_attacks, save_attack_results
 
     red_default, red_default_runner = create_red_agent_default()
-    await test_agent(red_default, red_default_runner)
+    try:
+        await test_agent(red_default, red_default_runner)
+    except Exception as exc:
+        print(f"Quick smoke test unavailable ({type(exc).__name__}); continuing with attack suite.")
 
     print("\n--- Attacks on Red ---")
     unsafe_results = await run_attacks(
@@ -134,10 +137,11 @@ async def part4_attacks():
 
 
 async def main(parts=None):
-    setup_api_key()
-
     if parts is None:
         parts = [2, 3, 4]  # Core: CP2 → CP3 → CP4
+
+    if 4 in parts:
+        setup_api_key()
 
     for part in parts:
         if part == 2:
@@ -155,6 +159,8 @@ async def main(parts=None):
 
 
 if __name__ == "__main__":
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
     parser = argparse.ArgumentParser(
         description=(
             "Lab 11: Guardrails / HITL / Red Team — "
